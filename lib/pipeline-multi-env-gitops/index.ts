@@ -199,6 +199,9 @@ function createArgoAddonConfig(
         },
         values: {
             server: {},
+            service: {
+                type: 'LoadBalancer',
+            }
         },
     });
 
