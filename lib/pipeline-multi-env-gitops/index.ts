@@ -202,10 +202,11 @@ function createArgoAddonConfig(
             },
         },
         values: {
-            server: {},
-            service: {
-                type: 'LoadBalancer',
-            }
+            server: {
+                service: {
+                    type: 'LoadBalancer',
+                }
+            },
         },
     });
 
@@ -249,7 +250,7 @@ function buildEnvAddons(
 ): blueprints.ClusterAddOn[] {
     return [
         new blueprints.KarpenterAddOn(buildKarpenterConfig(envId)),
-        // createArgoAddonConfig(envName),
+        createArgoAddonConfig(envName),
         new blueprints.CertManagerAddOn(),
     ];
 }
