@@ -43,6 +43,7 @@ export default class PipelineMultiEnvGitops {
     async buildAsync(
         scope: Construct,
         id: string,
+
         pipelineProps: PipelineMultiEnvGitopsProps,
         props?: StackProps
     ) {
@@ -50,6 +51,11 @@ export default class PipelineMultiEnvGitops {
         const DEV_ENV_ID = `dev-${pipelineProps.devTestEnv.region}`;
         const TEST_ENV_ID = `test-${pipelineProps.devTestEnv.region}`;
         const PROD_ENV_ID = `prod-${pipelineProps.prodEnv.region}`;
+
+         // teams per environment
+         const devTeams = buildTeams('dev', pipelineProps.devTestEnv.account!);
+         const testTeams = buildTeams('test', pipelineProps.devTestEnv.account!);
+         const prodTeams = buildTeams('prod', pipelineProps.prodEnv.account!);
 
         try {
             // github-token is needed for CDK Pipeline functionality
@@ -65,6 +71,7 @@ export default class PipelineMultiEnvGitops {
                     * @see https://docs.aws.amazon.com/codepipeline/latest/userguide/GitHub-create-personal-token-CLI.html`);
         }
 
+
         // Fargate provider - only for Karpenter
         const genClusterProvider = new blueprints.GenericClusterProvider({
             version: CLUSTER_VERSION,
@@ -79,7 +86,7 @@ export default class PipelineMultiEnvGitops {
         // commonly configured addons
         const addons: blueprints.ClusterAddOn[] = [
             new blueprints.AwsLoadBalancerControllerAddOn(),
-            new blueprints.CertManagerAddOn(),
+            // new blueprints.CertManagerAddOn(),
             new blueprints.SecretsStoreAddOn(),
             new blueprints.MetricsServerAddOn(),
         ];
@@ -91,13 +98,10 @@ export default class PipelineMultiEnvGitops {
 
         // custom addons per environment
         const devAddons = buildEnvAddons('dev', DEV_ENV_ID);
-        const testAddons = buildEnvAddons('test', DEV_ENV_ID);
+        const testAddons = buildEnvAddons('test', TEST_ENV_ID);
         const prodAddons = buildEnvAddons('prod', PROD_ENV_ID);
 
-        // teams per environment
-        const devTeams = buildTeams('dev', pipelineProps.devTestEnv.account!);
-        const testTeams = buildTeams('test', pipelineProps.devTestEnv.account!);
-        const prodTeams = buildTeams('prod', pipelineProps.prodEnv.account!);
+   
 
         try {
             // TODO - add dynamic gitowner suport when using codeStar config const { gitOwner, gitRepositoryName } = await getRepositoryData();
@@ -125,15 +129,15 @@ export default class PipelineMultiEnvGitops {
                                 .teams(...devTeams)
                                 .addOns(...devAddons),
                         },
-                        // {
-                        //     id: TEST_ENV_ID,
-                        //     stackBuilder: blueprint
-                        //         .clone()
-                        //         .withEnv(pipelineProps.devTestEnv)
-                        //         .name(TEST_ENV_ID)
-                        //         .teams(...testTeams)
-                        //         .addOns(...testAddons),
-                        // },
+                        {
+                            id: TEST_ENV_ID,
+                            stackBuilder: blueprint
+                                .clone()
+                                .withEnv(pipelineProps.devTestEnv)
+                                .name(TEST_ENV_ID)
+                                .teams(...testTeams)
+                                .addOns(...testAddons),
+                        },
                     ],
                     props: {
                         post: [
@@ -246,5 +250,6 @@ function buildEnvAddons(
     return [
         new blueprints.KarpenterAddOn(buildKarpenterConfig(envId)),
         createArgoAddonConfig(envName),
+        new blueprints.CertManagerAddOn(),
     ];
 }
