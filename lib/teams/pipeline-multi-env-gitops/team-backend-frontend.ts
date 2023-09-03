@@ -9,6 +9,7 @@ export class FrontendTeam extends ApplicationTeam {
                 new ArnPrincipal(`arn:aws:iam::${accountID}:user/frontend-user`),
             ],
             namespace: 'ecsdemo-frontend',
+        
             
         });
     }
