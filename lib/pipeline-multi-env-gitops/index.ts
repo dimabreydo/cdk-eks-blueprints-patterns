@@ -174,7 +174,7 @@ function buildTeams(envId: string, account: string): Array<blueprints.Team> {
         new team.CorePlatformTeam(account, envId),
         new team.FrontendTeam(account, envId),
         new team.BackendNodejsTeam(account, envId),
-        // new team.BackendCrystalTeam(account, envId),
+        new team.BackendCrystalTeam(account, envId),
     ];
     return teamsList;
 }
