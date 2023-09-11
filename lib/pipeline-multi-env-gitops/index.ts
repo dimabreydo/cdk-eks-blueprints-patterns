@@ -129,15 +129,15 @@ export default class PipelineMultiEnvGitops {
                                 .teams(...devTeams)
                                 .addOns(...devAddons),
                         },
-                        // {
-                        //     id: TEST_ENV_ID,
-                        //     stackBuilder: blueprint
-                        //         .clone()
-                        //         .withEnv(pipelineProps.devTestEnv)
-                        //         .name(TEST_ENV_ID)
-                        //         .teams(...testTeams)
-                        //         .addOns(...testAddons),
-                        // },
+                        {
+                            id: TEST_ENV_ID,
+                            stackBuilder: blueprint
+                                .clone()
+                                .withEnv(pipelineProps.devTestEnv)
+                                .name(TEST_ENV_ID)
+                                .teams(...testTeams)
+                                .addOns(...testAddons),
+                        },
                     ],
                     props: {
                         post: [
